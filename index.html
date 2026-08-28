@@ -1,356 +1,381 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎰 Gratta e Vinci Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-            padding: 15px 0;
-        }
-        
-        .istruzioni {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-        
-        .riga-prezzo {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 15px;
-            padding: 15px 10px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .label-prezzo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #2c3e50;
-            min-width: 100px;
-            text-align: left;
-        }
-        
-        .btn-meno {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            min-width: 90px;
-            transition: transform 0.1s, background 0.2s;
-        }
-        
-        .btn-meno:active {
-            transform: scale(0.95);
-            background: #ee5a5a;
-        }
-        
-        .quantita {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-            min-width: 140px;
-            text-align: center;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .btn-piu {
-            background: #51cf66;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            min-width: 90px;
-            transition: transform 0.1s, background 0.2s;
-        }
-        
-        .btn-piu:active {
-            transform: scale(0.95);
-            background: #40c057;
-        }
-        
-        .subtotale {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c3e50;
-            min-width: 140px;
-            text-align: right;
-        }
-        
-        .totali-generali {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            font-size: 22px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-resoconto {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-        }
-        
-        .btn-resoconto:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-reset {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        
-        .btn-esci {
-            background: #4dabf7;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-        }
-        
-        /* Modale resoconto */
-        .modale {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modale-contenuto {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modale-titolo {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .modale-dati {
-            font-size: 16px;
-            line-height: 1.8;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .modale-btn {
-            background: #4dabf7;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-        }
-        
-        /* Ottimizzazione per tablet */
-        @media (min-width: 768px) {
-            .container {
-                padding: 30px;
-            }
-            
-            h1 {
-                font-size: 32px;
-            }
-            
-            .label-prezzo {
-                font-size: 26px;
-                min-width: 120px;
-            }
-            
-            .quantita {
-                font-size: 28px;
-                min-width: 160px;
-            }
-            
-            .btn-meno, .btn-piu {
-                font-size: 18px;
-                padding: 18px 25px;
-                min-width: 110px;
-            }
-            
-            .subtotale {
-                font-size: 20px;
-                min-width: 160px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102a43">
+  <title>Contatore Gratta e Vinci</title>
+  <style>
+    :root {
+      --navy: #102a43;
+      --blue: #1f6feb;
+      --green: #14804a;
+      --red: #c0392b;
+      --bg: #edf2f7;
+      --card: #ffffff;
+      --text: #172b4d;
+      --muted: #5e6c84;
+      --line: #d9e2ec;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    }
+
+    header {
+      background: var(--navy);
+      color: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 18px rgba(16, 42, 67, 0.18);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 5vw, 34px);
+      line-height: 1.1;
+    }
+
+    .date-label {
+      margin: 9px 0 0;
+      font-size: 16px;
+      opacity: .9;
+    }
+
+    .hint {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .tickets {
+      display: grid;
+      gap: 12px;
+    }
+
+    .ticket-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) auto auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 3px 9px rgba(23, 43, 77, .08);
+    }
+
+    .ticket-name {
+      font-size: clamp(18px, 3.4vw, 23px);
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .ticket-subtotal {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      touch-action: manipulation;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .counter-button {
+      width: clamp(54px, 10vw, 68px);
+      height: clamp(54px, 10vw, 68px);
+      border-radius: 14px;
+      color: #fff;
+      font-size: 34px;
+      line-height: 1;
+      box-shadow: inset 0 -3px rgba(0,0,0,.12), 0 3px 7px rgba(0,0,0,.14);
+    }
+
+    .minus { background: var(--red); }
+    .plus { background: var(--green); }
+    button:active { transform: scale(.96); }
+
+    .count {
+      min-width: clamp(58px, 11vw, 76px);
+      text-align: center;
+      font-size: clamp(25px, 5vw, 34px);
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .summary {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #1f6feb, #174ea6);
+      color: #fff;
+      padding: 20px;
+      border-radius: 18px;
+      box-shadow: 0 8px 18px rgba(31,111,235,.24);
+    }
+
+    .summary-title {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 750;
+      opacity: .92;
+    }
+
+    .total-amount {
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .total-pieces {
+      margin: 10px 0 0;
+      font-size: 18px;
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .action {
+      padding: 18px;
+      min-height: 60px;
+      border-radius: 14px;
+      font-size: 18px;
+      color: white;
+    }
+
+    .report { background: #7b2cbf; }
+    .reset { background: #d35400; }
+
+    .saved {
+      margin: 15px 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      padding: 18px;
+      background: rgba(10, 25, 41, .68);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.open { display: flex; }
+
+    .modal-card {
+      width: min(620px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 16px;
+      color: var(--navy);
+      font-size: 26px;
+    }
+
+    .report-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .report-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 17px;
+    }
+
+    .report-total {
+      margin: 18px 0;
+      padding: 16px;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--navy);
+      font-size: 20px;
+      line-height: 1.55;
+    }
+
+    .close { background: var(--blue); }
+
+    @media (max-width: 430px) {
+      .ticket-row { gap: 8px; padding: 12px 10px; }
+      .ticket-name { font-size: 17px; }
+      .counter-button { border-radius: 12px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎰 Gratta e Vinci Tracker</h1>
-        
-        <div class="istruzioni">
-            Tocca ➕ o ➖ per aggiungere o rimuovere vendite
-        </div>
-        
-        <div id="righe-prezzi">
-            <!-- Le righe verranno generate da JavaScript -->
-        </div>
-        
-        <div class="totali-generali" id="totali-generali">
-            📈 TOTALE: 0 gratta e vinci | € 0,00
-        </div>
-        
-        <button class="btn-resoconto" onclick="mostraResoconto()">
-            📊 RESOCONTO FINALE
-        </button>
-        
-        <button class="btn-reset" onclick="resetContatori()">
-            🔄 Reset Contatori
-        </button>
-        
-        <button class="btn-esci" onclick="esci()">
-            💾 Salva e Esci
-        </button>
-    </div>
-    
-    <!-- Modale per il resoconto -->
-    <div class="modale" id="modale-resoconto">
-        <div class="modale-contenuto">
-            <div class="modale-titolo">📊 RESOCONTO VENDITE</div>
-            <div class="modale-dati" id="modale-dati-contenuto"></div>
-            <button class="modale-btn" onclick="chiudiModale()">Chiudi</button>
-        </div>
-    </div>
-    
-    <script>
-        // Configurazione prezzi
-        const PREZZI = [1, 2, 5, 10, 20];
-        
-        // Dati vendite
-        let vendite = {};
-        
-        // Inizializza vendite
-        function inizializzaVendite() {
-            const datiSalvati = localStorage.getItem('grattaVinciDati');
-            if (datiSalvati) {
-                vendite = JSON.parse(datiSalvati);
-            } else {
-                PREZZI.forEach(prezzo => {
-                    vendite[prezzo] = 0;
-                });
-            }
+  <main class="app">
+    <header>
+      <h1>🎟️ Contatore Gratta e Vinci</h1>
+      <p class="date-label" id="currentDate"></p>
+    </header>
+
+    <p class="hint">Premi <strong>−</strong> o <strong>+</strong> per aggiornare le vendite di oggi.</p>
+
+    <section class="tickets" id="tickets" aria-label="Contatori gratta e vinci"></section>
+
+    <section class="summary" aria-live="polite">
+      <p class="summary-title">INCASSO TOTALE DELLA GIORNATA</p>
+      <div class="total-amount" id="totalAmount">€ 0,00</div>
+      <p class="total-pieces" id="totalPieces">0 gratta e vinci venduti</p>
+    </section>
+
+    <section class="actions">
+      <button class="action report" id="reportButton">📊 Resoconto finale</button>
+      <button class="action reset" id="resetButton">🔄 Chiudi giornata e azzera</button>
+    </section>
+
+    <p class="saved" id="savedMessage">Salvataggio automatico attivo su questo dispositivo.</p>
+  </main>
+
+  <div class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+    <section class="modal-card">
+      <h2 id="reportTitle">📊 Resoconto della giornata</h2>
+      <ul class="report-list" id="reportList"></ul>
+      <div class="report-total" id="reportTotal"></div>
+      <button class="action close" id="closeReport">Chiudi</button>
+    </section>
+  </div>
+
+  <script>
+    const PREZZI = [5, 3, 10, 2, 1];
+    const STORAGE_KEY = 'grattaVinciVenditeGiornataV2';
+    const DATA_KEY = 'grattaVinciDataGiornataV2';
+
+    let vendite = {};
+
+    function euro(valore) {
+      return new Intl.NumberFormat('it-IT', {
+        style: 'currency',
+        currency: 'EUR'
+      }).format(valore);
+    }
+
+    function dataOggi() {
+      return new Date().toLocaleDateString('it-IT', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+    }
+
+    function chiaveOggi() {
+      const oggi = new Date();
+      const anno = oggi.getFullYear();
+      const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+      const giorno = String(oggi.getDate()).padStart(2, '0');
+      return `${anno}-${mese}-${giorno}`;
+    }
+
+    function inizializza() {
+      document.getElementById('currentDate').textContent = dataOggi();
+      const dataSalvata = localStorage.getItem(DATA_KEY);
+      const datiSalvati = localStorage.getItem(STORAGE_KEY);
+
+      if (dataSalvata === chiaveOggi() && datiSalvati) {
+        try {
+          vendite = JSON.parse(datiSalvati);
+        } catch {
+          vendite = {};
         }
-        
-        // Genera le righe dei prezzi
-        function generaRighePrezzi() {
-            const container = document.getElementById('righe-prezzi');
-            container.innerHTML = '';
-            
-            PREZZI.forEach(prezzo => {
-                const riga = document.createElement('div');
-                riga.className = 'riga-prezzo';
-                riga.innerHTML = `
-                    <div class="label-prezzo">€ ${prezzo},00</div>
-                    <button class="btn-meno" onclick="modificaQuantita(${prezzo}, -1)">➖ MENO</button>
-                    <div class="quantita" id="quantita-${prezzo}">Venduti: ${vendite[prezzo]}</div>
-                    <button class="btn-piu" onclick="modificaQuantita(${prezzo}, 1)">➕ PIÙ»</button>
-                    <div class="subtotale" id="subtotale-${prezzo}">€ ${(vendite[prezzo] * prezzo).toFixed(2)}</div>
-                `;
-                container.appendChild(riga);
-            });
-            
-            aggiornaTotali();
+      }
+
+      PREZZI.forEach(prezzo => {
+        if (!Number.isInteger(vendite[prezzo]) || vendite[prezzo] < 0) {
+          vendite[prezzo] = 0;
         }
-        
-        // Modifica quantità
-        function modificaQuantita(prezzo, variazione) {
-            const nuovaQuantita = vendite[prezzo] + variazione;
-            
-            if (nuovaQuantita < 0) {
-                alert(`Non puoi avere quantità negative per € ${prezzo},00!`);
-                return;
-            }
-            
-            vendite[prezzo] = nuovaQuantita;
-            aggiornaRiga(prezzo);
-  
+      });
+
+      disegnaRighe();
+      aggiornaTutto();
+    }
+
+    function disegnaRighe() {
+      const contenitore = document.getElementById('tickets');
+      contenitore.innerHTML = '';
+
+      PREZZI.forEach(prezzo => {
+        const riga = document.createElement('article');
+        riga.className = 'ticket-row';
+        riga.innerHTML = `
+          <div>
+            <div class="ticket-name">Gratta e Vinci ${euro(prezzo)}</div>
+            <span class="ticket-subtotal" id="subtotal-${prezzo}">Subtotale: € 0,00</span>
+          </div>
+          <button class="counter-button minus" type="button" aria-label="Diminuisci gratta e vinci da ${euro(prezzo)}" data-price="${prezzo}" data-change="-1">−</button>
+          <div class="count" id="count-${prezzo}">0</div>
+          <button class="counter-button plus" type="button" aria-label="Aggiungi gratta e vinci da ${euro(prezzo)}" data-price="${prezzo}" data-change="1">+</button>
+        `;
+        contenitore.appendChild(riga);
+      });
+
+      contenitore.querySelectorAll('[data-price]').forEach(button => {
+        button.addEventListener('click', () => {
+          modificaVendite(Number(button.dataset.price), Number(button.dataset.change));
+        });
+      });
+    }
+
+    function modificaVendite(prezzo, variazione) {
+      const nuovaQuantita = vendite[prezzo] + variazione;
+      if (nuovaQuantita < 0) return;
+      vendite[prezzo] = nuovaQuantita;
+      salva();
+      aggiornaTutto();
+    }
+
+    function calcolaTotali() {
+      const pezzi = PREZZI.reduce((somma, prezzo) => somma + vendite[prezzo], 0);
+      const incasso = PREZZI.reduce((somma, prezzo) => somma + (vendite[prezzo] * prezzo), 0);
+      return { pezzi, incasso };
+    }
+
+    function aggiornaTutto() {
+      PREZZI.forEach(prezzo => {
+        document.getElementById(`count-${prezzo}`).textContent = vendite[prezzo];
+        document.getElementById(`subtotal-${prezzo}`).textContent = `Subtotale: ${euro(vendite[prezzo] * prezzo)}`;
+      });
+
+      const { pezzi, incasso } = calcolaTotali();
+      document.getElementById('totalAmount').textContent = euro(incasso);
+      document.getElementById('totalPieces').textContent = `${pezzi} ${pezzi === 1 ? 'gratta e vinci venduto' : 'gratta e vinci venduti'}`;
+    }
+
+    function salva() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(vendite));
+      localStorage.setItem(DATA_KEY, chiaveOggi());
+      const ora = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('savedMessage').tex
