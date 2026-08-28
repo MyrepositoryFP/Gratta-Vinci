@@ -1,381 +1,536 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#102a43">
-  <title>Contatore Gratta e Vinci</title>
-  <style>
-    :root {
-      --navy: #102a43;
-      --blue: #1f6feb;
-      --green: #14804a;
-      --red: #c0392b;
-      --bg: #edf2f7;
-      --card: #ffffff;
-      --text: #172b4d;
-      --muted: #5e6c84;
-      --line: #d9e2ec;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Contatore Gratta e Vinci</title>
+<style>
+  :root{
+    --rosso:#d32f2f;
+    --rosso-dark:#a32424;
+    --verde:#2e7d32;
+    --verde-dark:#1e5c22;
+    --arancio:#e65100;
+    --arancio-dark:#b23c00;
+    --sfondo:#f4f6f8;
+    --carta:#ffffff;
+    --testo:#1a1a1a;
+    --bordo:#dfe3e7;
+    --blu:#1565c0;
+    --blu-dark:#0d47a1;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{
+    margin:0; padding:0;
+    background:var(--sfondo);
+    color:var(--testo);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .container{
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 16px 48px 16px;
+  }
+  header{
+    text-align:center;
+    padding: 12px 0 20px 0;
+  }
+  h1{
+    font-size: clamp(24px, 5vw, 34px);
+    margin: 0 0 6px 0;
+  }
+  .data-corrente{
+    font-size: 16px;
+    color:#555;
+    font-weight:600;
+  }
+  .riga{
+    background: var(--carta);
+    border: 1px solid var(--bordo);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    display:flex;
+    flex-wrap: wrap;
+    align-items:center;
+    gap: 12px;
+  }
+  .riga-nome{
+    flex: 1 1 100%;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .riga-controlli{
+    flex: 1 1 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 18px;
+  }
+  .btn-conta{
+    width: 64px;
+    height: 64px;
+    min-width:56px;
+    min-height:56px;
+    border-radius: 16px;
+    border: none;
+    font-size: 34px;
+    font-weight: 800;
+    color: white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+  .btn-meno{ background: var(--rosso); }
+  .btn-meno:active{ background: var(--rosso-dark); }
+  .btn-piu{ background: var(--verde); }
+  .btn-piu:active{ background: var(--verde-dark); }
+  .contatore{
+    min-width: 70px;
+    text-align:center;
+    font-size: 32px;
+    font-weight: 800;
+  }
+  .riga-subtotale{
+    flex: 1 1 100%;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    background: #f0f2f4;
+    border-radius: 10px;
+    padding: 8px 0;
+  }
+  .totale-box{
+    background: var(--blu);
+    color: white;
+    border-radius: 18px;
+    padding: 20px;
+    text-align:center;
+    margin: 22px 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  }
+  .totale-box .riga-totale{
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    margin: 6px 0;
+  }
+  .azioni{
+    display:flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .btn-azione{
+    min-height: 60px;
+    border-radius: 16px;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    cursor:pointer;
+    touch-action: manipulation;
+  }
+  .btn-resoconto{ background: var(--blu); }
+  .btn-resoconto:active{ background: var(--blu-dark); }
+  .btn-chiudi-giornata{ background: var(--arancio); }
+  .btn-chiudi-giornata:active{ background: var(--arancio-dark); }
+
+  .overlay{
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 16px;
+    z-index: 999;
+  }
+  .overlay.attivo{ display:flex; }
+  .modale{
+    background: white;
+    border-radius: 18px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 22px;
+  }
+  .modale h2{
+    margin-top:0;
+    font-size: 24px;
+    text-align:center;
+  }
+  .modale .sottotitolo{
+    text-align:center;
+    color:#555;
+    font-weight:600;
+    margin-bottom: 16px;
+  }
+  .tabella-resoconto{
+    width:100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  .tabella-resoconto th, .tabella-resoconto td{
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--bordo);
+    text-align: center;
+    font-size: 15px;
+  }
+  .tabella-resoconto th{
+    background: #f0f2f4;
+  }
+  .riepilogo-finale{
+    background: #f0f2f4;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+  .riepilogo-finale p{
+    margin: 6px 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .btn-chiudi-modale{
+    width:100%;
+    min-height: 54px;
+    border-radius: 14px;
+    border:none;
+    background: #555;
+    color:white;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .toast{
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color:white;
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.3s ease;
+    z-index: 1100;
+    text-align:center;
+    max-width: 90%;
+  }
+  .toast.mostra{ opacity: 1; }
+
+  @media (min-width: 640px){
+    .riga{
+      flex-wrap: nowrap;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .app {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
-    }
-
-    header {
-      background: var(--navy);
-      color: #fff;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 8px 18px rgba(16, 42, 67, 0.18);
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(25px, 5vw, 34px);
-      line-height: 1.1;
-    }
-
-    .date-label {
-      margin: 9px 0 0;
-      font-size: 16px;
-      opacity: .9;
-    }
-
-    .hint {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 16px;
-      text-align: center;
-    }
-
-    .tickets {
-      display: grid;
-      gap: 12px;
-    }
-
-    .ticket-row {
-      display: grid;
-      grid-template-columns: minmax(120px, 1fr) auto auto auto;
-      align-items: center;
-      gap: 12px;
-      padding: 14px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 3px 9px rgba(23, 43, 77, .08);
-    }
-
-    .ticket-name {
-      font-size: clamp(18px, 3.4vw, 23px);
-      font-weight: 750;
-      line-height: 1.2;
-    }
-
-    .ticket-subtotal {
-      display: block;
-      margin-top: 5px;
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-      touch-action: manipulation;
-      font: inherit;
-      font-weight: 800;
-    }
-
-    .counter-button {
-      width: clamp(54px, 10vw, 68px);
-      height: clamp(54px, 10vw, 68px);
-      border-radius: 14px;
-      color: #fff;
-      font-size: 34px;
-      line-height: 1;
-      box-shadow: inset 0 -3px rgba(0,0,0,.12), 0 3px 7px rgba(0,0,0,.14);
-    }
-
-    .minus { background: var(--red); }
-    .plus { background: var(--green); }
-    button:active { transform: scale(.96); }
-
-    .count {
-      min-width: clamp(58px, 11vw, 76px);
-      text-align: center;
-      font-size: clamp(25px, 5vw, 34px);
-      font-weight: 800;
-      color: var(--navy);
-    }
-
-    .summary {
-      margin-top: 20px;
-      background: linear-gradient(135deg, #1f6feb, #174ea6);
-      color: #fff;
-      padding: 20px;
-      border-radius: 18px;
-      box-shadow: 0 8px 18px rgba(31,111,235,.24);
-    }
-
-    .summary-title {
-      margin: 0 0 10px;
-      font-size: 18px;
-      font-weight: 750;
-      opacity: .92;
-    }
-
-    .total-amount {
-      font-size: clamp(32px, 8vw, 48px);
-      font-weight: 850;
-      line-height: 1;
-    }
-
-    .total-pieces {
-      margin: 10px 0 0;
-      font-size: 18px;
-    }
-
-    .actions {
-      display: grid;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .action {
-      padding: 18px;
-      min-height: 60px;
-      border-radius: 14px;
-      font-size: 18px;
-      color: white;
-    }
-
-    .report { background: #7b2cbf; }
-    .reset { background: #d35400; }
-
-    .saved {
-      margin: 15px 0 0;
-      text-align: center;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      padding: 18px;
-      background: rgba(10, 25, 41, .68);
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.open { display: flex; }
-
-    .modal-card {
-      width: min(620px, 100%);
-      max-height: calc(100vh - 36px);
-      overflow: auto;
-      background: #fff;
-      border-radius: 18px;
-      padding: 22px;
-    }
-
-    .modal-card h2 {
-      margin: 0 0 16px;
-      color: var(--navy);
-      font-size: 26px;
-    }
-
-    .report-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      border-top: 1px solid var(--line);
-    }
-
-    .report-list li {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 13px 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 17px;
-    }
-
-    .report-total {
-      margin: 18px 0;
-      padding: 16px;
-      border-radius: 12px;
-      color: #fff;
-      background: var(--navy);
-      font-size: 20px;
-      line-height: 1.55;
-    }
-
-    .close { background: var(--blue); }
-
-    @media (max-width: 430px) {
-      .ticket-row { gap: 8px; padding: 12px 10px; }
-      .ticket-name { font-size: 17px; }
-      .counter-button { border-radius: 12px; }
-    }
-  </style>
+    .riga-nome{ flex: 1 1 30%; }
+    .riga-controlli{ flex: 0 0 auto; }
+    .riga-subtotale{ flex: 1 1 30%; text-align:right; }
+  }
+</style>
 </head>
 <body>
-  <main class="app">
-    <header>
-      <h1>🎟️ Contatore Gratta e Vinci</h1>
-      <p class="date-label" id="currentDate"></p>
-    </header>
 
-    <p class="hint">Premi <strong>−</strong> o <strong>+</strong> per aggiornare le vendite di oggi.</p>
+<div class="container">
+  <header>
+    <h1>🎟️ Contatore Gratta e Vinci</h1>
+    <div class="data-corrente" id="dataCorrente"></div>
+  </header>
 
-    <section class="tickets" id="tickets" aria-label="Contatori gratta e vinci"></section>
+  <div id="righeContainer"></div>
 
-    <section class="summary" aria-live="polite">
-      <p class="summary-title">INCASSO TOTALE DELLA GIORNATA</p>
-      <div class="total-amount" id="totalAmount">€ 0,00</div>
-      <p class="total-pieces" id="totalPieces">0 gratta e vinci venduti</p>
-    </section>
-
-    <section class="actions">
-      <button class="action report" id="reportButton">📊 Resoconto finale</button>
-      <button class="action reset" id="resetButton">🔄 Chiudi giornata e azzera</button>
-    </section>
-
-    <p class="saved" id="savedMessage">Salvataggio automatico attivo su questo dispositivo.</p>
-  </main>
-
-  <div class="modal" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
-    <section class="modal-card">
-      <h2 id="reportTitle">📊 Resoconto della giornata</h2>
-      <ul class="report-list" id="reportList"></ul>
-      <div class="report-total" id="reportTotal"></div>
-      <button class="action close" id="closeReport">Chiudi</button>
-    </section>
+  <div class="totale-box">
+    <div class="riga-totale" id="totaleVenduti">Totale gratta e vinci venduti: 0</div>
+    <div class="riga-totale" id="incassoTotale">Incasso totale della giornata: € 0,00</div>
   </div>
 
-  <script>
-    const PREZZI = [5, 3, 10, 2, 1];
-    const STORAGE_KEY = 'grattaVinciVenditeGiornataV2';
-    const DATA_KEY = 'grattaVinciDataGiornataV2';
+  <div class="azioni">
+    <button class="btn-azione btn-resoconto" id="btnResoconto">📊 RESOCONTO FINALE</button>
+    <button class="btn-azione btn-chiudi-giornata" id="btnChiudiGiornata">🔄 CHIUDI GIORNATA E AZZERA</button>
+  </div>
+</div>
 
-    let vendite = {};
+<div class="overlay" id="overlayResoconto">
+  <div class="modale">
+    <h2>Resoconto della giornata</h2>
+    <div class="sottotitolo" id="dataResoconto"></div>
+    <table class="tabella-resoconto">
+      <thead>
+        <tr>
+          <th>Prezzo</th>
+          <th>Quantità</th>
+          <th>Subtotale</th>
+        </tr>
+      </thead>
+      <tbody id="tabellaResocontoBody"></tbody>
+    </table>
+    <div class="riepilogo-finale">
+      <p id="resocontoTotalePezzi"></p>
+      <p id="resocontoIncasso"></p>
+      <p id="resocontoMedia"></p>
+    </div>
+    <button class="btn-chiudi-modale" id="btnChiudiModale">Chiudi</button>
+  </div>
+</div>
 
-    function euro(valore) {
-      return new Intl.NumberFormat('it-IT', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(valore);
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CHIAVE_STORAGE = "gratta_vinci_dati_v1";
+
+  var PREZZI = [5, 3, 10, 2, 1];
+
+  var stato = null;
+
+  function oggiStringa(){
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,"0");
+    var g = String(d.getDate()).padStart(2,"0");
+    return y + "-" + m + "-" + g;
+  }
+
+  function statoIniziale(){
+    var contatori = {};
+    PREZZI.forEach(function(p){ contatori[p] = 0; });
+    return {
+      giorno: oggiStringa(),
+      contatori: contatori
+    };
+  }
+
+  function caricaStato(){
+    var salvato = null;
+    try{
+      var raw = localStorage.getItem(CHIAVE_STORAGE);
+      if(raw){ salvato = JSON.parse(raw); }
+    }catch(e){
+      salvato = null;
     }
 
-    function dataOggi() {
-      return new Date().toLocaleDateString('it-IT', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-      });
+    if(!salvato || typeof salvato !== "object" || !salvato.contatori){
+      return statoIniziale();
     }
 
-    function chiaveOggi() {
-      const oggi = new Date();
-      const anno = oggi.getFullYear();
-      const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-      const giorno = String(oggi.getDate()).padStart(2, '0');
-      return `${anno}-${mese}-${giorno}`;
+    if(salvato.giorno !== oggiStringa()){
+      return statoIniziale();
     }
 
-    function inizializza() {
-      document.getElementById('currentDate').textContent = dataOggi();
-      const dataSalvata = localStorage.getItem(DATA_KEY);
-      const datiSalvati = localStorage.getItem(STORAGE_KEY);
-
-      if (dataSalvata === chiaveOggi() && datiSalvati) {
-        try {
-          vendite = JSON.parse(datiSalvati);
-        } catch {
-          vendite = {};
-        }
+    var nuovo = statoIniziale();
+    PREZZI.forEach(function(p){
+      var v = salvato.contatori[p];
+      if(typeof v === "number" && v >= 0 && isFinite(v)){
+        nuovo.contatori[p] = Math.floor(v);
       }
+    });
+    nuovo.giorno = salvato.giorno;
+    return nuovo;
+  }
 
-      PREZZI.forEach(prezzo => {
-        if (!Number.isInteger(vendite[prezzo]) || vendite[prezzo] < 0) {
-          vendite[prezzo] = 0;
-        }
+  function salvaStato(){
+    try{
+      localStorage.setItem(CHIAVE_STORAGE, JSON.stringify(stato));
+    }catch(e){
+      // localStorage non disponibile: l'app continua a funzionare in memoria
+    }
+  }
+
+  function formattaEuro(valore){
+    var fissato = valore.toFixed(2);
+    var parti = fissato.split(".");
+    return "€ " + parti[0] + "," + parti[1];
+  }
+
+  function formattaDataItaliana(dataObj){
+    var opzioni = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    var testo = dataObj.toLocaleDateString("it-IT", opzioni);
+    return testo.charAt(0).toUpperCase() + testo.slice(1);
+  }
+
+  function calcolaTotali(){
+    var pezzi = 0;
+    var incasso = 0;
+    PREZZI.forEach(function(p){
+      var q = stato.contatori[p];
+      pezzi += q;
+      incasso += q * p;
+    });
+    return { pezzi: pezzi, incasso: incasso };
+  }
+
+  function aggiornaVista(){
+    PREZZI.forEach(function(p){
+      var q = stato.contatori[p];
+      var elContatore = document.getElementById("contatore-" + p);
+      var elSubtotale = document.getElementById("subtotale-" + p);
+      if(elContatore){ elContatore.textContent = q; }
+      if(elSubtotale){ elSubtotale.textContent = "Subtotale: " + formattaEuro(q * p); }
+    });
+
+    var totali = calcolaTotali();
+    document.getElementById("totaleVenduti").textContent =
+      "Totale gratta e vinci venduti: " + totali.pezzi;
+    document.getElementById("incassoTotale").textContent =
+      "Incasso totale della giornata: " + formattaEuro(totali.incasso);
+  }
+
+  function modifica(prezzo, delta){
+    var attuale = stato.contatori[prezzo];
+    var nuovo = attuale + delta;
+    if(nuovo < 0){ nuovo = 0; }
+    stato.contatori[prezzo] = nuovo;
+    salvaStato();
+    aggiornaVista();
+  }
+
+  function creaRighe(){
+    var container = document.getElementById("righeContainer");
+    var html = "";
+    PREZZI.forEach(function(p){
+      html +=
+        '<div class="riga">' +
+          '<div class="riga-nome">Gratta e Vinci ' + formattaEuro(p) + '</div>' +
+          '<div class="riga-controlli">' +
+            '<button class="btn-conta btn-meno" data-prezzo="' + p + '" data-delta="-1" aria-label="Diminuisci">−</button>' +
+            '<div class="contatore" id="contatore-' + p + '">0</div>' +
+            '<button class="btn-conta btn-piu" data-prezzo="' + p + '" data-delta="1" aria-label="Aumenta">+</button>' +
+          '</div>' +
+          '<div class="riga-subtotale" id="subtotale-' + p + '">Subtotale: € 0,00</div>' +
+        '</div>';
+    });
+    container.innerHTML = html;
+
+    var bottoni = container.querySelectorAll(".btn-conta");
+    bottoni.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var prezzo = parseInt(btn.getAttribute("data-prezzo"), 10);
+        var delta = parseInt(btn.getAttribute("data-delta"), 10);
+        modifica(prezzo, delta);
       });
+    });
+  }
 
-      disegnaRighe();
-      aggiornaTutto();
+  function mostraToast(messaggio){
+    var toast = document.getElementById("toast");
+    toast.textContent = messaggio;
+    toast.classList.add("mostra");
+    setTimeout(function(){
+      toast.classList.remove("mostra");
+    }, 2600);
+  }
+
+  function apriResoconto(){
+    var oggi = new Date();
+    document.getElementById("dataResoconto").textContent = formattaDataItaliana(oggi);
+
+    var corpo = "";
+    PREZZI.forEach(function(p){
+      var q = stato.contatori[p];
+      var sub = q * p;
+      corpo +=
+        "<tr>" +
+          "<td>" + formattaEuro(p) + "</td>" +
+          "<td>" + q + "</td>" +
+          "<td>" + formattaEuro(sub) + "</td>" +
+        "</tr>";
+    });
+    document.getElementById("tabellaResocontoBody").innerHTML = corpo;
+
+    var totali = calcolaTotali();
+    document.getElementById("resocontoTotalePezzi").textContent =
+      "Numero totale di gratta e vinci venduti: " + totali.pezzi;
+    document.getElementById("resocontoIncasso").textContent =
+      "Incasso totale: " + formattaEuro(totali.incasso);
+
+    var elMedia = document.getElementById("resocontoMedia");
+    if(totali.pezzi > 0){
+      var media = totali.incasso / totali.pezzi;
+      elMedia.textContent = "Prezzo medio per gratta e vinci venduto: " + formattaEuro(media);
+      elMedia.style.display = "";
+    } else {
+      elMedia.textContent = "";
+      elMedia.style.display = "none";
     }
 
-    function disegnaRighe() {
-      const contenitore = document.getElementById('tickets');
-      contenitore.innerHTML = '';
+    document.getElementById("overlayResoconto").classList.add("attivo");
+  }
 
-      PREZZI.forEach(prezzo => {
-        const riga = document.createElement('article');
-        riga.className = 'ticket-row';
-        riga.innerHTML = `
-          <div>
-            <div class="ticket-name">Gratta e Vinci ${euro(prezzo)}</div>
-            <span class="ticket-subtotal" id="subtotal-${prezzo}">Subtotale: € 0,00</span>
-          </div>
-          <button class="counter-button minus" type="button" aria-label="Diminuisci gratta e vinci da ${euro(prezzo)}" data-price="${prezzo}" data-change="-1">−</button>
-          <div class="count" id="count-${prezzo}">0</div>
-          <button class="counter-button plus" type="button" aria-label="Aggiungi gratta e vinci da ${euro(prezzo)}" data-price="${prezzo}" data-change="1">+</button>
-        `;
-        contenitore.appendChild(riga);
-      });
+  function chiudiResoconto(){
+    document.getElementById("overlayResoconto").classList.remove("attivo");
+  }
 
-      contenitore.querySelectorAll('[data-price]').forEach(button => {
-        button.addEventListener('click', () => {
-          modificaVendite(Number(button.dataset.price), Number(button.dataset.change));
-        });
-      });
+  function chiudiGiornata(){
+    var totali = calcolaTotali();
+    var messaggioConferma =
+      "Chiudere la giornata e azzerare i contatori?\n\n" +
+      "Totale gratta e vinci venduti: " + totali.pezzi + "\n" +
+      "Incasso totale: " + formattaEuro(totali.incasso);
+
+    var confermato = window.confirm(messaggioConferma);
+    if(!confermato){ return; }
+
+    stato = statoIniziale();
+    salvaStato();
+    aggiornaVista();
+    mostraToast("Giornata chiusa. Contatori azzerati.");
+  }
+
+  function mostraDataCorrente(){
+    document.getElementById("dataCorrente").textContent = formattaDataItaliana(new Date());
+  }
+
+  function controllaCambioGiorno(){
+    if(stato.giorno !== oggiStringa()){
+      stato = statoIniziale();
+      salvaStato();
+      aggiornaVista();
+      mostraDataCorrente();
     }
+  }
 
-    function modificaVendite(prezzo, variazione) {
-      const nuovaQuantita = vendite[prezzo] + variazione;
-      if (nuovaQuantita < 0) return;
-      vendite[prezzo] = nuovaQuantita;
-      salva();
-      aggiornaTutto();
-    }
+  function inizializza(){
+    stato = caricaStato();
+    mostraDataCorrente();
+    creaRighe();
+    aggiornaVista();
 
-    function calcolaTotali() {
-      const pezzi = PREZZI.reduce((somma, prezzo) => somma + vendite[prezzo], 0);
-      const incasso = PREZZI.reduce((somma, prezzo) => somma + (vendite[prezzo] * prezzo), 0);
-      return { pezzi, incasso };
-    }
+    document.getElementById("btnResoconto").addEventListener("click", apriResoconto);
+    document.getElementById("btnChiudiModale").addEventListener("click", chiudiResoconto);
+    document.getElementById("overlayResoconto").addEventListener("click", function(e){
+      if(e.target === document.getElementById("overlayResoconto")){
+        chiudiResoconto();
+      }
+    });
+    document.getElementById("btnChiudiGiornata").addEventListener("click", chiudiGiornata);
 
-    function aggiornaTutto() {
-      PREZZI.forEach(prezzo => {
-        document.getElementById(`count-${prezzo}`).textContent = vendite[prezzo];
-        document.getElementById(`subtotal-${prezzo}`).textContent = `Subtotale: ${euro(vendite[prezzo] * prezzo)}`;
-      });
+    document.addEventListener("visibilitychange", function(){
+      if(document.visibilityState === "visible"){
+        controllaCambioGiorno();
+      }
+    });
 
-      const { pezzi, incasso } = calcolaTotali();
-      document.getElementById('totalAmount').textContent = euro(incasso);
-      document.getElementById('totalPieces').textContent = `${pezzi} ${pezzi === 1 ? 'gratta e vinci venduto' : 'gratta e vinci venduti'}`;
-    }
+    setInterval(controllaCambioGiorno, 60000);
+  }
 
-    function salva() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(vendite));
-      localStorage.setItem(DATA_KEY, chiaveOggi());
-      const ora = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('savedMessage').tex
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", inizializza);
+  } else {
+    inizializza();
+  }
+})();
+</script>
+
+</body>
+</html>
